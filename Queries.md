@@ -1,0 +1,33 @@
+# Foundations
+- TSQL is a dialect of the SQL Standard defined by ISO and ANSI
+- Best Practice is to use standard compliant syntax whenever possible.  Examples
+    - Use <> rather than !=
+    - Use the CAST function over (tsql-specific) CONVERT function, unless additional functionality from CONVERT is needed
+    - End statements with a semicolon
+- Standard SQL is based on the relational model, which is a mathematical model for data management and manipulation, originally developed by E.F. Codd in 1969
+    - Relational model is based on set theory and predicate logic
+    - Relation refers to a mathematical relation, which is represented as a Table in SQL
+    - Each relation has a set of attributes (i.e. columns) and a set of tuples (i.e. rows)
+    - SQL diverges from the relational model in a number of ways, e.g. allows for duplicate values and ordering
+    - SQL is based on 3-value predicate logic, i.e. a predicate may be TRUE, FALSE, or UNKNOWN.  Always be careful when dealing with NULLs
+
+# Logical query processing
+    - Logical query processing is the conceptual understanding of the query that explains what the correct result is.  When you write SQL, you are expressing what you want the results to be, not how to get those results.
+    - Physical query processing refers the actual implementation of the query by the database engine, which may apply various optimizations, but must produce the result defined by the logical query.
+    - Keyed-in Order of statements
+        - SELECT
+        - FROM
+        - WHERE
+        - GROUP BY
+        - HAVING
+        - ORDER BY
+    - Logical order of statement processing
+        - FROM
+        - WHERE
+        - GROUP BY
+        - HAVING
+        - SELECT
+        - ORDER BY
+    - Each phrase operates on one or more tables and returns a virtual table as output, which is then passed to the next phrase
+    - N.B. If ORDER BY is specified, then the result is not relational, and cannot be operated on by an outer query
+    - Logical order of WHERE before SELECT is the reason why aliases specified in SELECT cannot be used in WHERE
