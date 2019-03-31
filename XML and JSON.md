@@ -89,3 +89,252 @@ Produces
   </co:Customer>
 </CustomersOrders>
 ```
+
+### Shredding XML
+Process of converting XML to relational tables.
+
+OPENXML rowset function
+- XML DOM handle returned by `sp_xml_preparedocument`
+- XPath expression to find the nodes you want
+- Rowset description(schema)
+- Mapping between XML nodes and rowset columns
+
+```sql
+DECLARE @DocHandle AS INT;
+DECLARE @XmlDocument AS NVARCHAR(1000);
+SET @XmlDocument = N'
+<CustomersOrders>
+  <Customer custid="1">
+    <companyname>Customer NRZBB</companyname>
+    <Order orderid="10692">
+      <orderdate>2015-10-03T00:00:00</orderdate>
+    </Order>
+    <Order orderid="10702">
+      <orderdate>2015-10-13T00:00:00</orderdate>
+    </Order>
+    <Order orderid="10952">
+      <orderdate>2016-03-16T00:00:00</orderdate>
+    </Order>
+  </Customer>
+  <Customer custid="2">
+    <companyname>Customer MLTDN</companyname>
+    <Order orderid="10308">
+      <orderdate>2014-09-18T00:00:00</orderdate>
+    </Order>
+    <Order orderid="10926">
+      <orderdate>2016-03-04T00:00:00</orderdate>
+    </Order>
+  </Customer>
+</CustomersOrders>';
+-- Create an internal representation
+EXEC sys.sp_xml_preparedocument @DocHandle OUTPUT, @XmlDocument;
+-- Attribute- and element-centric mapping
+-- Combining flag 8 with flags 1 and 2
+SELECT *
+FROM OPENXML (@DocHandle, '/CustomersOrders/Customer',11)
+     WITH (custid INT,
+           companyname NVARCHAR(40));
+-- Remove the DOM
+EXEC sys.sp_xml_removedocument @DocHandle;
+GO
+```
+### XQuery
+Standard language for browsing XML instances and returing XML output. 
+
+FLWOR expressions - used to iterate through a sequence returned by an XPath expression
+- For - bind iterator variables to input sequence
+- Let - Assign a value to a variable for a specific iteration
+- Where - Filter the iteration
+- Order by - Control the order in which the input sequence is processed
+- Return - Format the resulting XML
+
+Reference: https://docs.microsoft.com/en-us/sql/xquery/xquery-language-reference-sql-server?view=sql-server-2017
+
+### XML Data type
+The XML data type is a large object type(up to 2GB).  It supports the following methods
+- `value()` - Returns a scalar value based on an XQuery expression
+- `query()` - Returns XML based on XQuery expression
+- `exists()` - Returns a bit if the xQuery expression returns a nonempty result
+- `modify()` - Supports modification of XML data using SQL Server DML extensions to xQuery
+- `nodes()` - Used to shred an XML value into relational data
+
+## JSON
+### Producing JSON from queries
+FOR JSON <AUTO | PATH>
+- AUTO - SQL Server formats the JSON automatically based on order of columns in SLELCT and order of tables in FROM
+- PATH - 
+- ROOT
+- INCLUDE_NULL_VALUES
+- WITHOUT_ARRAY_WRAPPER
+
+```sql
+SELECT c.custid AS [Customer.Id], 
+  c.companyname AS [Customer.Name], 
+  o.orderid AS [Customer.Order.Id], 
+  o.orderdate AS [Customer.Order.Date]
+FROM Sales.Customers AS c
+  INNER JOIN Sales.Orders AS o
+    ON c.custid = o.custid
+WHERE c.custid = 1
+  AND o.orderid = 10692
+ORDER BY c.custid, o.orderid
+FOR JSON PATH,
+    ROOT('Customer 1');
+```
+
+```json
+{
+   "Customer":{
+      "Id":1,
+      "Name":"Customer NRZBB",
+      "Order":{
+         "Id":10692,
+         "Date":"2015-10-03",
+         "Delivery":null
+      }
+   }
+}
+```
+
+```sql
+SELECT c.custid AS [Customer.Id], 
+  c.companyname AS [Customer.Name], 
+  o.orderid AS [Customer.Order.Id], 
+  o.orderdate AS [Customer.Order.Date],
+  NULL AS [Customer.Order.Delivery]
+FROM Sales.Customers AS c
+  INNER JOIN Sales.Orders AS o
+    ON c.custid = o.custid
+WHERE c.custid = 1
+  AND o.orderid = 10692
+ORDER BY c.custid, o.orderid
+FOR JSON PATH,
+    WITHOUT_ARRAY_WRAPPER,
+    INCLUDE_NULL_VALUES;
+```
+
+```json
+{
+   "Customer":{
+      "Id":1,
+      "Name":"Customer NRZBB",
+      "Order":{
+         "Id":10692,
+         "Date":"2015-10-03",
+         "Delivery":null
+      }
+   }
+}
+```
+
+### Converting JSON to tabular format
+`OPENJSON(value, [path])`
+
+```sql
+DECLARE @json AS NVARCHAR(MAX) = N'
+{ 
+   "Customer":{ 
+      "Id":1, 
+      "Name":"Customer NRZBB",
+      "Order":{ 
+         "Id":10692, 
+         "Date":"2015-10-03",
+         "Delivery":null
+      }
+   }
+}';
+SELECT *
+FROM OPENJSON(@json,'$.Customer');
+```
+key | value | type
+--- | ----- | ----
+Id	| 1|	2
+Name	| Customer NRZBB |	1
+Order |	{            "Id":10692,            "Date":"2015-10-03",           "Delivery":null        }	| 5
+
+WITH Clause allows explicit schema mapping
+```sql
+DECLARE @json AS NVARCHAR(MAX) = N'
+{ 
+   "Customer":{ 
+      "Id":1, 
+      "Name":"Customer NRZBB",
+      "Order":{ 
+         "Id":10692, 
+         "Date":"2015-10-03",
+         "Delivery":null
+      }
+   }
+}';
+SELECT *
+FROM OPENJSON(@json)
+WITH
+(
+ CustomerId   INT           '$.Customer.Id',
+ CustomerName NVARCHAR(20)  '$.Customer.Name',
+ Orders       NVARCHAR(MAX) '$.Customer.Order' AS JSON
+);
+```
+
+CustomerId	| CustomerName	| Orders
+----------  | ------------ | -------
+1	| Customer NRZBB	|{            "Id":10692,            "Date":"2015-10-03",           "Delivery":null        }
+
+### Other JSON functions
+- JSON_VALUE(val, path) - Returns scalar JSON value
+- JSON_QUERY(val, path) - Return JSON object 
+- JSON_MODIFY(val, path, newval) - Modify JSON
+- ISJSON(val) - Returns 1 if val is valid json, 0 otherwise
+
+```sql
+DECLARE @json AS NVARCHAR(MAX) = N'
+{ 
+   "Customer":{ 
+      "Id":1, 
+      "Name":"Customer NRZBB",
+      "Order":{ 
+         "Id":10692, 
+         "Date":"2015-10-03",
+         "Delivery":null
+      }
+   }
+}';
+SELECT JSON_VALUE(@json, '$.Customer.Id') AS CustomerId,
+ JSON_VALUE(@json, '$.Customer.Name') AS CustomerName,
+ JSON_QUERY(@json, '$.Customer.Order') AS Orders;
+```
+
+```sql
+DECLARE @json AS NVARCHAR(MAX) = N'
+{ 
+   "Customer":{ 
+      "Id":1, 
+      "Name":"Customer NRZBB",
+      "Order":{ 
+         "Id":10692, 
+         "Date":"2015-10-03",
+         "Delivery":null
+      }
+   }
+}'; 
+-- Update name  
+SET @json = JSON_MODIFY(@json, '$.Customer.Name', 'Modified first name'); 
+-- Delete Id  
+SET @json = JSON_MODIFY(@json, '$.Customer.Id', NULL)  
+-- Insert last name  
+SET @json = JSON_MODIFY(@json, '$.Customer.LastName', 'Added last name')  
+PRINT @json;
+```
+```json
+{ 
+   "Customer":{ 
+       
+      "Name":"Modified first name",
+      "Order":{ 
+         "Id":10692, 
+         "Date":"2015-10-03",
+         "Delivery":null
+      }
+   ,"LastName":"Added last name"}
+}
+```
