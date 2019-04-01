@@ -6,7 +6,7 @@ Number of parameters | 2          | >= 2
 Standard             | NO         | Yes
 Data Type of result  | Type of first, then type of second, or INT if both are untyped NULL | Type with the highest precedence.  Error if all inputs are Untyped NULL
 Nullability          | If any input is non-nullable, result is NOT NULL | If all inputs are non-nullable, result is NOT NULL
-Might execute subquery more than once?  | Yes | No
+Might execute subquery more than once?  | No | Yes
 
 ## Data Types
 Use the smallest type that fits your needs!
