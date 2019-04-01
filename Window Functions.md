@@ -68,7 +68,7 @@ custid | orderid | val | rownum | rnk | densernk | ntile100
 ## Window Offset Functions
 Returns an element from a single row that is in a given offset from the current row in the window partition, or from the first or last row in the window frame
 - `LAG(col, [N], [default])` - Supports window partition and ordering.  Returns the value of col from the Nth row preceding the the current row in the partition.  N defaults to 1.  If no row exists, then NULL is returned, or the default value if specified
-- `LEAD(col)` - - Supports window partition and ordering.  Returns the value of col from the Nth row following the the current row in the partition.  N defaults to 1.  If no row exists, then NULL is returned, or the default value if specified
+- `LEAD(col, [N], [default])` - - Supports window partition and ordering.  Returns the value of col from the Nth row following the the current row in the partition.  N defaults to 1.  If no row exists, then NULL is returned, or the default value if specified
 - `FIRST_VALUE(col)` - Supports partition, order, and frame clauses.  Returns the value of col in the first row of the window frame
 - `LAST_VALUE(col)` - Supports partition, order, and frame clauses.  Returns the value of col in the last row of the window frame
 
