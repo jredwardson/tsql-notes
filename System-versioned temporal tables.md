@@ -49,3 +49,68 @@ Subclauses:
 - `FROM @start TO @end` - rows where `validfrom < @end and validto > @start`
 - `BETWEEN @start TO @end` - rows where `validfrom =< @end and validto > @start`
 - `CONTAINED IN(@start, @end)` - returns rows where `validfrom >= @start and validto <= @end`
+- `ALL` - returns all rows matching the query criteria from the table and it's history table
+
+### Simplified Example
+
+Consider the following Product table with associated History table.  For simplicity, we will use days of the week for timestamps, in order from SUN to SAT
+
+ID | Name          | UnitPrice | ValidFrom | ValidTo
+-- | ------------- | --------- | --------- | -------
+5  | French Fries  |  2.00     |  FRI      |  SAT
+
+
+Product History
+ID | Name         | UnitPrice | ValidFrom | ValidTo
+-- | ------------ | --------- | --------- | -------
+5  | Fries        |  1.50     |  SUN      |  TUE
+5  | Fries        |  2.50     |  TUE      |  THU
+5  | French Fries |  2.50     |  THU      |  FRI
+
+In this example, the Fries entry was created on Sunday.  On Tuesday the unit price was changed from 1.50 to 2.50.  On Thursday, the product was renamed from Fries to French Fries.  On Friday, the unit price was updated from 2.50 to 2.00.
+
+#### From and Between
+From and between will return rows where the validity interval intersects the specified interval.  Between also returns rows where the validity interval starts at the end of the specified interval.
+
+`SELECT * From Product FOR SYSTEM_TIME FROM MON TO THU`
+ID | Name         | UnitPrice | ValidFrom | ValidTo
+-- | ------------ | --------- | --------- | -------
+5  | Fries        |  1.50     |  SUN      |  TUE
+5  | Fries        |  2.50     |  TUE      |  THU
+
+These two rows from the history table overlap(or intersect) with the specified interval `MON TO THU`.  More precisely
+- `SUN < THU` and `TUE > MON` so the first history entry is included
+- `TUE < THU` and `THU > MON` so the second history entry is included
+- The third history entry is not included because the validFrom, `THU` is not less than the end of the specified interval, `THU`
+- The entry in the Product table is not included because ValidFrom, `FRI` is greater than the end of the specified interval 
+
+
+`SELECT * From Product FOR SYSTEM_TIME BETWEEN MON TO THU`
+ID | Name         | UnitPrice | ValidFrom | ValidTo
+-- | ------------ | --------- | --------- | -------
+5  | Fries        |  1.50     |  SUN      |  TUE
+5  | Fries        |  2.50     |  TUE      |  THU
+5  | French Fries |  2.50     |  THU      |  FRI
+
+These three rows from the history table overlap(or intersect) with the specified interval `MON TO THU`, inclusive of the end of the interval.  More precisely
+- `SUN <= THU` and `TUE > MON` so the first history entry is included
+- `TUE <= THU` and `THU > MON` so the second history entry is included
+- `THU <= THU` and `FRI > MON` so the third history entry is included
+- The entry in the Product table is not included because `FRI > THU`
+
+#### Contained In
+Contained in returns rows where the validity interval is completely contained within the specified interval
+
+`SELECT * From Product FOR SYSTEM_TIME CONTAINED IN(MON, THU)`
+ID | Name         | UnitPrice | ValidFrom | ValidTo
+-- | ------------ | --------- | --------- | -------
+5  | Fries        |  2.50     |  TUE      |  THU
+
+This is the only row with a validity interval completely contained within the specified interval `MON TO THU`.  More precisely
+- `SUN < MON` so the first history row is not included
+- `TUE >= MON` AND `THU <= THU` so the second history row is included
+- `FRI > THU` so the third history row is not included
+- `SAT > THU` so the product table row is not included
+
+
+
