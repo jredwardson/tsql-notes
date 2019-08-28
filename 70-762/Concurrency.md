@@ -95,7 +95,7 @@ COMMIT TRAN
 ```
 ## Concurrency Control
 - **Pessimistic concurrency control**:  Uses locks to isolate transactions. When a transaction performs an action that acquires a lock on a resource, other transactions cannot perform conflicting actions on that resource until the lock is released.  Mainly used in environments where there is high contention for data, where the cost of protecting data with locks is less than the cost of rolling back transactions if concurrency conflicts occur.
-- **Optimistic concurrency control**: Transactions do not lock data when they read it. When a transaction data, the system checks to see if another transaction changed the data after it was read, and raises an error if so. Typically, the transaction receiving the error rolls back the transaction and starts over. Mainly used in environments where there is low contention for data, and where the cost of occasionally rolling back a transaction is lower than the cost of locking data when read.
+- **Optimistic concurrency control**: Transactions do not lock data when they read it. When a transaction attempts to change data, the system checks to see if another transaction changed the data after it was read, and raises an error if so. Typically, the transaction receiving the error rolls back the transaction and starts over. Mainly used in environments where there is low contention for data, and where the cost of occasionally rolling back a transaction is lower than the cost of locking data when read.
 ## Locks
 
 SQL Server uses locks to support concurrency while maintaining isolation.  The locks used by a transaction depend on its isolation level.
@@ -103,19 +103,19 @@ SQL Server uses locks to support concurrency while maintaining isolation.  The l
 SQL Server can lock resources at multiple levels of granularity.  Locking resources at the most granular level improves concurrency, at the cost of more overhead for managing the locks.
 
 A lock hierarchy may be established to fully protect a given resource
-Resource | Description
----------|------------
-RID      | A row identifier used to lock a single row within a heap.
-KEY      | A row lock within an index used to protect key ranges in serializable transactions.
-PAGE     | An 8-kilobyte (KB) page in a database, such as data or index pages.
-EXTENT   | A contiguous group of eight pages, such as data or index pages.
-HoBT     | A heap or B-tree. A lock protecting a B-tree (index) or the heap data pages in a table that does not have a clustered index.
-TABLE    | The entire table, including all data and indexes.
-FILE     | A database file.
-APPLICATION |An application-specified resource.
-METADATA | Metadata locks.
-ALLOCATION_UNIT | An allocation unit.
-DATABASE | The entire database.
+| Resource | Description |
+| ---------|-------------|
+| RID      | A row identifier used to lock a single row within a heap. |
+| KEY      | A row lock within an index used to protect key ranges in serializable transactions. |
+| PAGE     | An 8-kilobyte (KB) page in a database, such as data or index pages. |
+| EXTENT   | A contiguous group of eight pages, such as data or index pages. |
+| HoBT     | A heap or B-tree. A lock protecting a B-tree (index) or the heap data pages in a table that does not have a clustered index. |
+| TABLE    | The entire table, including all data and indexes. |
+| FILE     | A database file. |
+| APPLICATION |An application-specified resource. |
+| METADATA | Metadata locks. |
+| ALLOCATION_UNIT | An allocation unit. |
+| DATABASE | The entire database. |
 
 ### Lock Modes:
 - **Shared (S)**: Also known as a read lock. Used for read operations and is released as soon as data has been read from the locked resource.  Other transactions may also hold a shared lock on the resource, but may not modify the resource. In order to hold the lock for the entire transaction, use the `HOLDLOCK` table hint, or set the `REPEATABLE_READ` or `SERIALIZABLE` transaction isolation levels.
