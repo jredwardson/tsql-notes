@@ -103,6 +103,7 @@ SQL Server uses locks to support concurrency while maintaining isolation.  The l
 SQL Server can lock resources at multiple levels of granularity.  Locking resources at the most granular level improves concurrency, at the cost of more overhead for managing the locks.
 
 A lock hierarchy may be established to fully protect a given resource
+
 | Resource | Description |
 | ---------|-------------|
 | RID      | A row identifier used to lock a single row within a heap. |
