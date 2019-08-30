@@ -6,10 +6,10 @@ Understand how to uncover performance problems related to locks and lock escalat
 Additionally, know how to use the tools available for identifying when and why
 deadlocks happen and the possible steps to take to prevent deadlocks from arising.
 
- ■ Troubleshoot locking issues
- ■ Identify lock escalation behaviors
- ■ Capture and analyze deadlock graphs
- ■ Identify ways to remediate deadlocks
+* Troubleshoot locking issues
+* Identify lock escalation behaviors
+* Capture and analyze deadlock graphs
+* Identify ways to remediate deadlocks
 
 
 
@@ -19,7 +19,7 @@ DMV = Dynamic Management Views: Helpful to view information about locks
 
  1.**sys.dm_tran_locks** Use this DMV to view all current locks, the lock resources, lock
 mode, and other related information.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ■ The sys.dm_tran_locks DMV provides you with information about existing locks and locks that
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The sys.dm_tran_locks DMV provides you with information about existing locks and locks that
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; have been requested but not yet granted in addition to details about the resource for which
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the lock is requested. You can use this DMV only to view information at the current point in
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; time. It does not provide access to historical information about locks.
