@@ -19,10 +19,11 @@ DMV = Dynamic Management Views: Helpful to view information about locks
 
  1.**sys.dm_tran_locks** Use this DMV to view all current locks, the lock resources, lock
 mode, and other related information.
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The sys.dm_tran_locks DMV provides you with information about existing locks and locks that
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; have been requested but not yet granted in addition to details about the resource for which
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; the lock is requested. You can use this DMV only to view information at the current point in
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; time. It does not provide access to historical information about locks.
+The sys.dm_tran_locks DMV provides you with information about existing locks and locks that
+have been requested but not yet granted in addition to details about the resource for which
+the lock is requested. You can use this DMV only to view information at the current point in
+time. It does not provide access to historical information about locks.
+
 | resource_type | resource_subtype | resource_database_id | resource_description                                                                                                                                                                                                                                             | resource_associated_entity_id | resource_lock_partition | request_mode | request_type | request_status | request_reference_count | request_lifetime | request_session_id | request_exec_context_id | request_request_id | request_owner_type           | request_owner_id | request_owner_guid                   | request_owner_lockspace_id | lock_owner_address |
 |---------------|------------------|----------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------|-------------------------|--------------|--------------|----------------|-------------------------|------------------|--------------------|-------------------------|--------------------|------------------------------|------------------|--------------------------------------|----------------------------|--------------------|
 | DATABASE      |                  | 16                   |                                                                                                                                                                                                                                                                  | 0                             | 14                      | S            | LOCK         | GRANT          | 1                       | 0                | 76                 | 0                       | 0                  | SHARED_TRANSACTION_WORKSPACE | 0                | 00000000-0000-0000-0000-000000000000 | 0x00000088637DD530:0:0     | 0x0000008AE618D7C0 |
