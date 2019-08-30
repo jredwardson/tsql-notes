@@ -112,8 +112,6 @@ INNER JOIN sys.dm_os_waiting_tasks as t2
  ON t1.lock_owner_address = t2.resource_address; 
 ```
 
-```
-
  3.**sys.dm_os_wait_stats** Use this DMV to see how often processes are waiting while locks are taken.
  Not too useful. Just identifies long term trends but doesn't show you details about the locked resources.
 
