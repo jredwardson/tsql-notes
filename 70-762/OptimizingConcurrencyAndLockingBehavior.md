@@ -96,8 +96,8 @@ to upgrade to a different lock mode and is currently blocked.
 
  2.**sys.dm_os_waiting_tasks** Use this DMV to see which tasks are waiting for a resource.
 * Whereas the earlier query showing existing locks is helpful for learning how SQL Server acquires locks, this table
-returns information that is more useful on a day-today basis for uncovering blocking chains. For example, in the above 
-examples you can see that session 2 is blocked by session 1.
+returns information that is more useful on a day-today basis for uncovering blocking chains. For example, in the below 
+query you can see that session 2 is blocked by session 1.
 
 ```
 SELECT
@@ -111,6 +111,10 @@ FROM sys.dm_tran_locks as t1
 INNER JOIN sys.dm_os_waiting_tasks as t2
  ON t1.lock_owner_address = t2.resource_address; 
 ```
+|res_typ | res_dbid | res_entid         | mode |s_id | blocking_s_id |
+|--------|----------|-------------------|------|-----|---------------|
+|KEY     | 27       | 72057594041729024 | X    | 2   | 1             |
+
 
  3.**sys.dm_os_wait_stats** Use this DMV to see how often processes are waiting while locks are taken.
  Not too useful. Just identifies long term trends but doesn't show you details about the locked resources.
