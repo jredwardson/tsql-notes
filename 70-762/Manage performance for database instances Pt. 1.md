@@ -3,6 +3,8 @@
 * Design and implement Elastic Scale for Azure SQL Database
 * Select an appropriate service tier or edition
 * Optimize database file and tempdb configuration
+
+Pt. 2 includes...
 * Optimize memory configuration
 * Monitor and diagnose schedule and wait statistics using dynamic management objects
 * Troubleshoot and analyze storage, IO, and cache issues
