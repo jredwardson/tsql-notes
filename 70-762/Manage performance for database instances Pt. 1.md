@@ -26,11 +26,7 @@ you can add user-defined resource pools.
         - The sum of Minimum CPU% and of Minimum Memory % for all resources pools cannot
     be more than 100. These values represent the guaranteed average amount of that resource
     that each resource pool can use to respond to requests. 
-        - The Maximum CPU% and Maximum Memory % reflect the maximum average amount for the respective resources
-| pool_id | name     | min_cpu_percent | max_cpu_percent | min_memory_percent | max_memory_percent | cap_cpu_percent | min_iops_per_volume | max_iops_per_volume |
-|---------|----------|-----------------|-----------------|--------------------|--------------------|-----------------|---------------------|---------------------|
-| 1       | internal | 0               | 100             | 0                  | 100                | 100             | 0                   | 0                   |
-| 2       | default  | 0               | 100             | 0                  | 100                | 100             | 0                   | 0                   |        
+        - The Maximum CPU% and Maximum Memory % reflect the maximum average amount for the respective resources 
     - _Internal_ SQL Server uses the internal resource pool for resources required to run
     the database engine. You cannot change the resource configuration for the internal
     resource pool. SQL Server creates one when you enable the Resource Governor.
@@ -70,6 +66,15 @@ GO
 ALTER RESOURCE GOVERNOR RECONFIGURE;
 GO
 ```
+```
+SELECT * FROM  sys.resource_governor_resource_pools
+```
+| pool_id | name     | min_cpu_percent | max_cpu_percent | min_memory_percent | max_memory_percent | cap_cpu_percent | min_iops_per_volume | max_iops_per_volume |
+|---------|----------|-----------------|-----------------|--------------------|--------------------|-----------------|---------------------|---------------------|
+| 1       | internal | 0               | 100             | 0                  | 100                | 100             | 0                   | 0                   |
+| 2       | default  | 0               | 100             | 0                  | 100                | 100             | 0                   | 0                   |
+
+
 * **Workload Groups**: serves as a container for session requests that have similar
 classification criteria. A workload allows for aggregate monitoring of the sessions, and defines
 policies for the sessions. Each workload group is in a resource pool, which represents a subset
