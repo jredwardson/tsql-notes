@@ -27,6 +27,10 @@ you can add user-defined resource pools.
     be more than 100. These values represent the guaranteed average amount of that resource
     that each resource pool can use to respond to requests. 
         - The Maximum CPU% and Maximum Memory % reflect the maximum average amount for the respective resources
+| pool_id | name     | min_cpu_percent | max_cpu_percent | min_memory_percent | max_memory_percent | cap_cpu_percent | min_iops_per_volume | max_iops_per_volume |
+|---------|----------|-----------------|-----------------|--------------------|--------------------|-----------------|---------------------|---------------------|
+| 1       | internal | 0               | 100             | 0                  | 100                | 100             | 0                   | 0                   |
+| 2       | default  | 0               | 100             | 0                  | 100                | 100             | 0                   | 0                   |        
     - _Internal_ SQL Server uses the internal resource pool for resources required to run
     the database engine. You cannot change the resource configuration for the internal
     resource pool. SQL Server creates one when you enable the Resource Governor.
