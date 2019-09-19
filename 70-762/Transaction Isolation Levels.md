@@ -12,6 +12,9 @@ Shared Lock (S) - Shared and update locks can be placed on resources locked with
 
 Update Lock (U) - Shared locks can be placed on resources with update locks. When the statement is ready to perform the update, this will be converted to an exclusive lock.
 
+## Isolation Levels
+Specify how read operations should behave in the presense of concurrent write operation.  Lower isolation levels improve concurrency at the cost of increased anomolies.
+
 READ UNCOMMITTED
 * How it Works
 	* Does not issue shared locks when reading data.

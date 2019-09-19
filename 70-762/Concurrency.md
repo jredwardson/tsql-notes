@@ -107,16 +107,16 @@ A lock hierarchy may be established to fully protect a given resource
 | Resource | Description |
 | ---------|-------------|
 | RID      | A row identifier used to lock a single row within a heap. |
-| KEY      | A row lock within an index used to protect key ranges in serializable transactions. |
-| PAGE     | An 8-kilobyte (KB) page in a database, such as data or index pages. |
-| EXTENT   | A contiguous group of eight pages, such as data or index pages. |
-| HoBT     | A heap or B-tree. A lock protecting a B-tree (index) or the heap data pages in a table that does not have a clustered index. |
+| KEY      | A key or key-range lock within an index, depending on isolation level. |
+| PAGE     | An 8-kilobyte (KB) page in a database, such as data or index pages.  Locked when a transaction reads all rows on the page, or during page-level maintenance |
+| EXTENT   | A contiguous group of eight pages, such as data or index pages.  Typically locked during space allocation/deallocation |
+| HoBT     | A heap or B-tree. A lock protecting an entire B-tree (index) or all the data pages in a heap. |
 | TABLE    | The entire table, including all data and indexes. |
 | FILE     | A database file. |
-| APPLICATION |An application-specified resource. |
-| METADATA | Metadata locks. |
+| APPLICATION | An application-specified resource, using `sp_getapplock`. |
+| METADATA | System metadata locks to protect catalog information |
 | ALLOCATION_UNIT | An allocation unit. |
-| DATABASE | The entire database. |
+| DATABASE | The entire database.  Gets a shared lock to indicate that it is in use so that another process cannot drop/restore/etc |
 
 ### Lock Modes:
 - **Shared (S)**: Also known as a read lock. Used for read operations and is released as soon as data has been read from the locked resource.  Other transactions may also hold a shared lock on the resource, but may not modify the resource. In order to hold the lock for the entire transaction, use the `HOLDLOCK` table hint, or set the `REPEATABLE_READ` or `SERIALIZABLE` transaction isolation levels.
@@ -150,6 +150,8 @@ A lock hierarchy may be established to fully protect a given resource
 | X |  N | N | N | N  | N   | N |
 
 ### Lock Escalation
-SQL Server uses a dynamic locking strategy to determine the most cost-effective locks. The SQL Server Database Engine automatically determines what locks are most appropriate when the query is executed, based on the characteristics of the schema and query.
+SQL Server uses a dynamic locking strategy to determine the most cost-effective locks(in terms of granularity). The SQL Server Database Engine automatically determines what locks are most appropriate when the query is executed, based on the characteristics of the schema and query.
+
+Lock escalation occurs when > 40 % memory pool is required by locks, or at least 5000 locks are taken in a single statement for single resource.  Intent locks are converted to full locks if possible and lower level locks are released.  
 
 See `LOCK_ESCALATION`
